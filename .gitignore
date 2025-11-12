@@ -1,0 +1,59 @@
+# Local LLM Models and Cache
+*.gguf
+*.bin
+*.safetensors
+models/
+model_cache/
+ollama_models/
+
+# Vector Database and RAG
+*.faiss
+*.index
+vector_db/
+embeddings/
+codebase_index/
+chroma_db/
+
+# API Keys and Secrets (even though we're using local, for future-proofing)
+.env
+.env.local
+config.secret.json
+*.key
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and Monitoring
+logs/
+*.log
+performance_metrics/
+monitoring_data/
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+
+# Model Downloads (these will be large)
+downloads/
+model_downloads/
+
+# System
+.DS_Store
+Thumbs.db
