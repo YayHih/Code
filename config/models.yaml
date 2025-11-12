@@ -1,0 +1,174 @@
+# Model Configuration for RTX 3060 (12GB VRAM) Setup
+# Based on research-driven optimization for code generation
+
+models:
+  # Primary coding model - Q8 for maximum quality
+  primary:
+    name: "qwen2.5-coder:7b-instruct-q8_0"
+    display_name: "Qwen Coder 7B Q8"
+    description: "Primary model for code generation with near-lossless quality"
+    vram_usage: "8.5GB"
+    context_window: 32768
+    safe_context: 24576  # 60% margin for reliability
+    expected_speed: "30-40 tok/s"
+    quantization: "Q8_0"
+    use_cases:
+      - "Production code generation"
+      - "Complex algorithms"
+      - "Critical bug fixes"
+      - "API integration"
+    temperature: 0.15
+    top_p: 0.95
+    top_k: 40
+    repeat_penalty: 1.1
+
+  # Extended context variant - Q6 for more context
+  extended_context:
+    name: "qwen2.5-coder:7b-instruct-q6_K"
+    display_name: "Qwen Coder 7B Q6"
+    description: "Extended context for large file operations"
+    vram_usage: "6.5GB"
+    context_window: 32768
+    safe_context: 32768
+    expected_speed: "35-45 tok/s"
+    quantization: "Q6_K"
+    use_cases:
+      - "Multi-file refactoring"
+      - "Large file editing"
+      - "Documentation generation"
+    temperature: 0.15
+    top_p: 0.95
+
+  # Complex reasoning model - Q4 14B for difficult tasks
+  complex_reasoning:
+    name: "qwen2.5-coder:14b-instruct-q4_K_M"
+    display_name: "Qwen Coder 14B Q4"
+    description: "Larger model for complex architectural decisions"
+    vram_usage: "8.5-9GB"
+    context_window: 16384
+    safe_context: 16384
+    expected_speed: "15-20 tok/s"
+    quantization: "Q4_K_M"
+    use_cases:
+      - "Architectural planning"
+      - "Complex multi-file projects"
+      - "Design pattern implementation"
+      - "System refactoring"
+    temperature: 0.15
+    top_p: 0.95
+    cpu_offload:
+      enabled: true
+      gpu_layers: 22  # Hybrid GPU/CPU split
+      cpu_threads: 12
+
+  # Fast draft model - Q4 for quick iterations
+  fast_draft:
+    name: "qwen2.5-coder:7b-instruct-q4_K_M"
+    display_name: "Qwen Coder 7B Q4 Fast"
+    description: "Fast model for quick drafts and iteration"
+    vram_usage: "4.5GB"
+    context_window: 32768
+    safe_context: 48576
+    expected_speed: "40-50 tok/s"
+    quantization: "Q4_K_M"
+    use_cases:
+      - "Quick prototypes"
+      - "Initial drafts"
+      - "Simple scripts"
+      - "Testing/utilities"
+    temperature: 0.2
+    top_p: 0.95
+
+# Embedding model for RAG
+embeddings:
+  model: "nomic-embed-text"
+  dimensions: 768
+  description: "Nomic AI's embedding model for code understanding"
+  use_cases:
+    - "Codebase indexing"
+    - "Semantic search"
+    - "Context retrieval"
+
+# Model selection strategy
+selection_strategy:
+  # Complexity-based routing
+  complexity_routing:
+    simple:  # <100 LOC, clear requirements
+      model: "fast_draft"
+      threshold: 0
+    medium:  # 100-500 LOC, some ambiguity
+      model: "primary"
+      threshold: 1
+    complex:  # >500 LOC, architectural decisions
+      model: "complex_reasoning"
+      threshold: 3
+
+  # Task-based routing
+  task_routing:
+    code_generation: "primary"
+    refactoring: "extended_context"
+    architecture: "complex_reasoning"
+    documentation: "extended_context"
+    testing: "fast_draft"
+    debugging: "primary"
+
+# Multi-model workflows
+workflows:
+  three_agent_quality:
+    description: "40-60% bug reduction through multi-agent validation"
+    agents:
+      planning:
+        model: "complex_reasoning"
+        role: "Analyze task and create implementation strategy"
+      coding:
+        model: "primary"
+        role: "Implement the plan with high-quality code"
+      testing:
+        model: "fast_draft"
+        role: "Generate tests and validate output"
+    expected_improvement: "40-60% bug reduction"
+
+  iterative_refinement:
+    description: "Quality escalation through multiple passes"
+    passes:
+      - model: "fast_draft"
+        purpose: "Quick draft"
+      - model: "primary"
+        purpose: "Quality refinement"
+      - model: "complex_reasoning"
+        purpose: "Deep fixes if needed"
+    expected_improvement: "23.79% over one-shot"
+
+# Performance optimization settings
+optimization:
+  # KV cache quantization for extended context
+  kv_cache:
+    enabled: true
+    key_type: "q8_0"
+    value_type: "q4_0"
+    memory_reduction: "40-50%"
+
+  # Flash attention
+  flash_attention:
+    enabled: true
+    memory_reduction: "20-30%"
+
+  # Model caching in RAM
+  ram_caching:
+    enabled: true
+    max_models: 4
+    estimated_ram_usage: "60-80GB"
+    swap_time: "2-4 seconds"
+
+  # Thread configuration
+  threading:
+    full_gpu: 4
+    hybrid_offload: 12
+    max_threads: 14  # 50% of available threads
+
+# VRAM monitoring thresholds
+vram_monitoring:
+  warning_threshold: 10.5  # GB
+  critical_threshold: 11.5  # GB
+  headroom: 0.5  # GB to leave free
+  overflow_prevention: true
