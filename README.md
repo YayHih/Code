@@ -43,17 +43,22 @@ source venv/bin/activate
 
 ### 3. Start coding with Aider
 
+**⚠️ Important for Local Models**: If you get edit format errors, use:
+
 ```bash
-./scripts/start_aider.sh
+./scripts/start_aider.sh --whole      # Most reliable for local models
+./scripts/start_aider.sh --architect  # Best for planning/discussions
 ```
 
 Or use different model configurations:
 
 ```bash
-./scripts/start_aider.sh fast      # Fast Q4 model (40-50 tok/s)
-./scripts/start_aider.sh primary   # High quality Q8 (30-40 tok/s)
-./scripts/start_aider.sh complex   # 14B model for complex tasks
+./scripts/start_aider.sh fast --whole      # Fast Q4 model (40-50 tok/s)
+./scripts/start_aider.sh primary --whole   # High quality Q8 (30-40 tok/s)
+./scripts/start_aider.sh complex --architect # 14B for complex tasks
 ```
+
+**See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) if you encounter any issues.**
 
 ### 4. Test your setup
 
@@ -355,6 +360,28 @@ For 14B models that don't fit entirely in VRAM:
 - Document your configuration
 
 ## Troubleshooting
+
+**📖 For detailed troubleshooting, see [TROUBLESHOOTING.md](TROUBLESHOOTING.md)**
+
+### Aider Edit Format Errors
+
+**Error**: "The LLM did not conform to the edit format"
+
+**Quick Fixes**:
+```bash
+# Most reliable - use whole file editing
+./scripts/start_aider.sh --whole
+
+# For planning and discussions
+./scripts/start_aider.sh --architect
+
+# Fast model with whole file editing
+./scripts/start_aider.sh fast --whole
+```
+
+**Why this happens**: Local models sometimes struggle with Aider's strict formatting. The `--whole` flag makes Aider work with complete files instead of diffs, which is much more reliable.
+
+**See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions and best practices.**
 
 ### Ollama not starting
 

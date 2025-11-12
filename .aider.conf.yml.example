@@ -1,0 +1,62 @@
+# Aider Configuration File - Optimized for Local LLMs
+# Copy this to .aider.conf.yml in your project directory
+#
+# Usage:
+#   cp .aider.conf.yml.example .aider.conf.yml
+#   aider
+#
+# Or use our wrapper script:
+#   ./scripts/start_aider.sh --whole
+
+# Model Configuration
+# Use the primary high-quality model
+model: ollama_chat/qwen2.5-coder:7b-instruct-q8_0
+
+# Edit Format - "whole" is most reliable for local models
+# Options: whole, diff, udiff, diff-fenced
+edit-format: whole
+
+# UI Settings
+dark-mode: true
+pretty: true
+
+# Git Integration
+auto-commits: false
+dirty-commits: true
+auto-lint: true
+
+# Context Management
+# Increase for better results, but watch VRAM usage
+# max-chat-history-tokens: 4096
+
+# Performance
+stream: true
+show-diffs: true
+
+# Safety
+# verify-ssl: true
+
+# Advanced Options
+# map-tokens: 1024
+# cache-prompts: true
+
+# Voice (requires additional setup)
+# voice-language: en
+
+# Additional Features
+# suggest-shell-commands: false
+
+---
+# Alternative configurations for different use cases
+
+# Fast Model Configuration (for quick iterations)
+# model: ollama_chat/qwen2.5-coder:7b-instruct-q4_K_M
+# edit-format: diff
+
+# Complex Tasks Configuration (for architecture/design)
+# model: ollama_chat/qwen2.5-coder:14b-instruct-q4_K_M
+# edit-format: whole
+
+# Architect Mode (planning, no edits)
+# chat-mode: architect
+# model: ollama_chat/qwen2.5-coder:14b-instruct-q4_K_M

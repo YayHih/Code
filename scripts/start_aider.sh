@@ -1,6 +1,5 @@
 #!/bin/bash
-# Aider Integration Script for Local LLM
-# Provides easy access to different model configurations
+# Improved Aider Integration with better local LLM compatibility
 
 set -e
 
@@ -13,10 +12,11 @@ NC='\033[0m'
 # Default settings
 MODEL="qwen2.5-coder:7b-instruct-q8_0"
 MODE="primary"
+EDIT_FORMAT="diff"  # More forgiving format for local models
 
 # Help function
 show_help() {
-    echo "Aider Integration for Local LLM"
+    echo "Aider Integration for Local LLM (Optimized for Local Models)"
     echo ""
     echo "Usage: $0 [mode] [options]"
     echo ""
@@ -27,18 +27,64 @@ show_help() {
     echo "  complex    - 14B Q4 model (complex reasoning)"
     echo ""
     echo "Options:"
-    echo "  --architect - Architect mode (planning and design)"
-    echo "  --help      - Show this help"
+    echo "  --architect     - Architect mode (planning, more reliable with local models)"
+    echo "  --whole         - Use whole file editing (most reliable for local models)"
+    echo "  --diff          - Use diff format (default, good balance)"
+    echo "  --udiff         - Use unified diff format"
+    echo "  --auto-commits  - Enable auto-commits"
+    echo "  --help          - Show this help"
     echo ""
     echo "Examples:"
-    echo "  $0                    # Start with primary model"
-    echo "  $0 fast              # Start with fast model"
-    echo "  $0 complex --architect # Use 14B model in architect mode"
+    echo "  $0                        # Start with primary model"
+    echo "  $0 fast --whole          # Fast model with whole file editing"
+    echo "  $0 primary --architect   # Architect mode (recommended for local models)"
+    echo ""
+    echo "Recommended for local models:"
+    echo "  $0 --whole               # Most reliable"
+    echo "  $0 --architect           # Best for planning/complex tasks"
     echo ""
 }
 
 # Parse arguments
 MODE=${1:-primary}
+shift || true
+
+ARCHITECT_FLAG=""
+AUTO_COMMITS="--no-auto-commits"
+ADDITIONAL_FLAGS=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --architect)
+            ARCHITECT_FLAG="--architect"
+            shift
+            ;;
+        --whole)
+            EDIT_FORMAT="whole"
+            shift
+            ;;
+        --diff)
+            EDIT_FORMAT="diff"
+            shift
+            ;;
+        --udiff)
+            EDIT_FORMAT="udiff"
+            shift
+            ;;
+        --auto-commits)
+            AUTO_COMMITS="--auto-commits"
+            shift
+            ;;
+        --help|-h|help)
+            show_help
+            exit 0
+            ;;
+        *)
+            ADDITIONAL_FLAGS="$ADDITIONAL_FLAGS $1"
+            shift
+            ;;
+    esac
+done
 
 case "$MODE" in
     "primary")
@@ -62,18 +108,18 @@ case "$MODE" in
         exit 0
         ;;
     *)
-        echo "Unknown mode: $MODE"
-        show_help
-        exit 1
+        # If first arg looks like a flag, use primary model
+        if [[ "$MODE" == --* ]]; then
+            ADDITIONAL_FLAGS="$MODE $ADDITIONAL_FLAGS"
+            MODEL="qwen2.5-coder:7b-instruct-q8_0"
+            DESC="Primary Q8 (highest quality, 30-40 tok/s)"
+        else
+            echo "Unknown mode: $MODE"
+            show_help
+            exit 1
+        fi
         ;;
 esac
-
-# Architect mode
-ARCHITECT_FLAG=""
-if [[ "$2" == "--architect" ]]; then
-    ARCHITECT_FLAG="--architect"
-    DESC="$DESC (Architect mode)"
-fi
 
 # Check if Ollama is running
 if ! pgrep -x "ollama" > /dev/null; then
@@ -87,16 +133,23 @@ echo "=========================================="
 echo -e "${GREEN}Starting Aider with Local LLM${NC}"
 echo "=========================================="
 echo ""
-echo "Model: $MODEL"
-echo "Mode:  $DESC"
+echo "Model:       $MODEL"
+echo "Mode:        $DESC"
+echo "Edit Format: $EDIT_FORMAT"
+if [[ -n "$ARCHITECT_FLAG" ]]; then
+    echo "Architect:   Enabled (recommended for local models)"
+fi
 echo ""
 echo "Aider will use your local LLM for all operations."
 echo "No API calls, completely private and free."
 echo ""
-echo "Tips:"
+echo "Tips for Local Models:"
+echo "  - Use /architect for better reliability"
+echo "  - Use --whole flag for most reliable edits"
+echo "  - Be specific in your requests"
+echo "  - Break complex tasks into smaller steps"
 echo "  - Use /model to switch models mid-session"
-echo "  - Use /architect for planning mode"
-echo "  - Use /help for Aider commands"
+echo "  - Use /help for all Aider commands"
 echo "  - Press Ctrl+D or type /exit to quit"
 echo ""
 echo "=========================================="
@@ -107,10 +160,13 @@ if [ -d "venv" ]; then
     source venv/bin/activate
 fi
 
-# Start Aider with optimal settings
+# Start Aider with optimal settings for local models
 aider \
     --model "ollama_chat/$MODEL" \
-    --no-auto-commits \
+    --edit-format "$EDIT_FORMAT" \
+    $AUTO_COMMITS \
     --dark-mode \
+    --no-suggest-shell-commands \
+    --stream \
     $ARCHITECT_FLAG \
-    "$@"
+    $ADDITIONAL_FLAGS
