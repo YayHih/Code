@@ -46,13 +46,38 @@ show_help() {
 }
 
 # Parse arguments
-MODE=${1:-primary}
-shift || true
-
+MODE="primary"
 ARCHITECT_FLAG=""
 AUTO_COMMITS="--no-auto-commits"
 ADDITIONAL_FLAGS=""
 
+# First, check if first arg is a mode or a flag
+if [[ $# -gt 0 ]]; then
+    case "$1" in
+        primary|fast|extended|complex)
+            MODE="$1"
+            shift
+            ;;
+        --help|-h|help)
+            show_help
+            exit 0
+            ;;
+        # If it starts with --, it's a flag, keep MODE as primary
+        --*)
+            : # Do nothing, MODE stays as primary
+            ;;
+        *)
+            # Unknown mode
+            echo "Unknown mode: $1"
+            echo "Valid modes: primary, fast, extended, complex"
+            echo "Or use flags: --whole, --architect, etc."
+            show_help
+            exit 1
+            ;;
+    esac
+fi
+
+# Now parse all flags
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --architect)
@@ -86,6 +111,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Set model based on MODE
 case "$MODE" in
     "primary")
         MODEL="qwen2.5-coder:7b-instruct-q8_0"
@@ -102,22 +128,6 @@ case "$MODE" in
     "complex")
         MODEL="qwen2.5-coder:14b-instruct-q4_K_M"
         DESC="Complex 14B (deep reasoning, 15-20 tok/s)"
-        ;;
-    "--help"|"-h"|"help")
-        show_help
-        exit 0
-        ;;
-    *)
-        # If first arg looks like a flag, use primary model
-        if [[ "$MODE" == --* ]]; then
-            ADDITIONAL_FLAGS="$MODE $ADDITIONAL_FLAGS"
-            MODEL="qwen2.5-coder:7b-instruct-q8_0"
-            DESC="Primary Q8 (highest quality, 30-40 tok/s)"
-        else
-            echo "Unknown mode: $MODE"
-            show_help
-            exit 1
-        fi
         ;;
 esac
 

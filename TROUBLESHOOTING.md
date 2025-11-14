@@ -332,6 +332,91 @@ def ask_llm(prompt, model="qwen2.5-coder:7b-instruct-q8_0"):
     return result.stdout
 ```
 
+## Working with Files Outside the Home Directory
+
+**Question**: "How do I use Aider with files in a different directory?"
+
+**Answer**: Aider can work with files anywhere on your system. Here are the best methods:
+
+### Method 1: Navigate to Your Project First (Recommended)
+
+```bash
+# Go to your project directory
+cd /path/to/your/project
+
+# Start Aider (using full path to the script if needed)
+~/LLM/scripts/start_aider.sh --whole
+
+# Inside Aider, add files with relative paths
+/add src/main.py
+/add *.py
+```
+
+**Example**:
+```bash
+cd /home/user/projects/my-webapp
+~/LLM/scripts/start_aider.sh --whole
+
+# In Aider:
+/add src/app.py
+/add src/utils.py
+```
+
+### Method 2: Use Absolute Paths in Aider
+
+```bash
+# Start Aider from anywhere
+~/LLM/scripts/start_aider.sh --whole
+
+# Inside Aider, add files with full paths
+/add /home/user/projects/webapp/src/main.py
+/add /var/www/html/index.php
+```
+
+### Method 3: Start with File Arguments
+
+```bash
+cd /path/to/your/project
+~/LLM/scripts/start_aider.sh --whole file1.py file2.py src/*.py
+```
+
+### Method 4: Create a Symlink (for frequently used projects)
+
+```bash
+# Create a symlink
+ln -s /path/to/your/project ~/myproject
+
+# Use it
+cd ~/myproject
+~/LLM/scripts/start_aider.sh --whole
+```
+
+### Useful Aider Commands for File Management
+
+```bash
+/add <file>          # Add file (relative or absolute path)
+/add *.py            # Add all Python files in current directory
+/add src/**/*.js     # Add all JS files in src/ recursively
+/drop <file>         # Remove file from context
+/ls                  # List files currently in context
+/clear               # Clear chat history (not files)
+```
+
+### Tips
+
+- **Aider respects your current working directory** - just `cd` to your project first
+- You can add files from **multiple directories** in one session
+- Use **Tab completion** in Aider to autocomplete file paths
+- The script location doesn't matter - run it from anywhere with full path
+- Use `/ls` to see what files are currently loaded
+
+### Quick Reference Script
+
+For a complete guide, run:
+```bash
+./scripts/working_with_files.sh
+```
+
 ## Still Having Issues?
 
 1. **Check the logs**: Look at Aider's output for specific error messages
